@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Valentine Invitation 💌</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #E0B0FF;
+            font-family: 'Georgia', serif;
+            touch-action: none;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .page { display: none; width: 90%; max-width: 400px; animation: fadeIn 0.5s; }
+        .active { display: block; }
+
+        h1 { color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        
+        .btn-container { display: flex; gap: 20px; justify-content: center; margin-top: 30px; }
+        button { padding: 15px 30px; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        
+        #yesBtn { background: #4caf50; color: white; font-size: 1.2rem; }
+        #noBtn { background: #ff4d4d; color: white; }
+
+        /* SCRATCH STYLES */
+        #scratch-container {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background: white;
+            border-radius: 15px;
+            margin: 20px auto;
+            overflow: hidden;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        #prize { position: absolute; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1; }
+        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 10; touch-action: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="page1" class="page active">
+        <div style="font-size: 4rem;">💌</div>
+        <h1>Will you be my date for Vals?</h1>
+        <div class="btn-container">
+            <button id="yesBtn" onclick="showPage('page2')">YES! 😍</button>
+            <button id="noBtn" onclick="showPage('page3')">NO 😒</button>
+        </div>
+    </div>
+
+    <div id="page2" class="page">
+        <h1>I knew it! Scratch for your surprise... ✨</h1>
+        <div id="scratch-container">
+            <div id="prize">
+                <h3 style="color: #8A2BE2; margin:0;">GIFT REVEALED:</h3>
+                <p style="color: #D4AF37; font-weight:bold; font-size:1.4rem;">DINNER AT SKY BAR 🥂</p>
+                <p style="font-size: 0.8rem; color: #777;">I love you! ❤️</p>
+            </div>
+            <canvas id="scratch-canvas"></canvas>
+        </div>
+        <p style="color: white; font-weight: bold;">Rub your finger on the silver!</p>
+    </div>
+
+    <div id="page3" class="page">
+        <div style="font-size: 4rem;">💔</div>
+        <h1 style="line-height: 1.6;">Herh! <br> Chale you dey do me yawa o! 😭</h1>
+        <p style="color: white; font-size: 1.2rem;">Settings go spoil koraa.</p>
+        <button onclick="location.reload()" style="background: white; color: #ff4d4d; margin-top: 20px;">Change your mind? 🥺</button>
+    </div>
+
+    <script>
+        // NAVIGATION
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if(pageId === 'page2') initScratch();
+        }
+
+        // SCRATCH LOGIC
+        function initScratch() {
+            const canvas = document.getElementById('scratch-canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            let isDrawing = false;
+            
+            canvas.width = 300;
+            canvas.height = 200;
+
+            // Silver Cover
+            ctx.fillStyle = '#C0C0C0';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#777';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('SCRATCH HERE ✨', 150, 110);
+
+            function scratch(x, y) {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(x, y, 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            canvas.addEventListener('touchstart', (e) => {
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                scratch(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                scratch(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
+            }, { passive: false });
+
+            canvas.addEventListener('mousedown', () => isDrawing = true);
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+                const rect = canvas.getBoundingClientRect();
+                scratch(e.clientX - rect.left, e.clientY - rect.top);
+            });
+            window.addEventListener('mouseup', () => isDrawing = false);
+        }
+    </script>
+</body>
+</html>
